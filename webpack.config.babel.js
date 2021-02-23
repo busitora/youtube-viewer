@@ -11,12 +11,20 @@ export default (env, args) => {
     },
   ];
 
-  return {
-    entry: "./src/entries/sample.jsx",
-    output: {
-      path: path.join(__dirname, "./output/"),
-      filename: "sample.js",
-    },
-    module: { rules },
-  };
+    return {
+      devtool,
+      entry: "./src/entries/app.jsx",
+      output: {
+        path: path.join(__dirname, "./public/js/"),
+        filename: "app.js",
+      },
+      module: { rules },
+      resolve: {
+        modules: ["node_modules"],
+        alias: {
+          "~": path.join(__dirname, "./src/"),
+        },
+        extensions: [".js", ".jsx"],
+      },
+    };
 };
