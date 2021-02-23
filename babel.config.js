@@ -23,7 +23,20 @@ module.exports = (api) => {
     ],
   ];
 
-  const plugins = [];
+  const plugins = [
+    [
+      "babel-plugin-styled-components", // babel実行時にstyled-componentsが生成するクラス名の設定ができるプラグイン
+      isProduction //productionビルド時の設定
+          ? {
+              fileName: false, //クラス名にファイル名を含めるかどうか
+              displayName: false, // クラス名にReactのコンポーネント名を含めるかどうか(
+              pure: true,
+          }
+        : {
+            minify: false,
+          },
+    ],
+  ];
 
   return {
     presets,
