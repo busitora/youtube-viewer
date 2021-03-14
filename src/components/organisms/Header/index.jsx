@@ -7,8 +7,8 @@ const Root = styled.div`
   width: 100%;
 `;
 
-const Header = ({ className }) => (
-  <Root className={className}>
+const Header = () => (
+  <Root>
     <Typography size="title" color="red" align="center">
       YouTube Viewer
     </Typography>
