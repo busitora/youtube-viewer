@@ -1,93 +1,93 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+import moment from "moment";
 import styled from "styled-components";
-import useOnScrollEnd from "~/utils/useOnScrollEnd";
-
-const pcSize = "(min-width: 1000px)";
+import Typography from "~/components/atoms/Typography";
+import PaperButton from "~/components/atoms/PaperButton";
 
 const Root = styled.div`
   width: 100%;
-  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
 `;
 
-const HeaderWrapper = styled.div`
-  max-width: 1200px;
-  margin: auto;
-  border-bottom: 1px solid #ccc;
+const Title = styled(Typography)`
+  margin: 4px 0 10px;
 `;
 
-const FlexWrapper = styled.div`
-  display: flex;
-  max-width: 1200px;
-  margin: auto;
-  flex-direction: column;
-  @media ${pcSize} {
-    flex-direction: row;
-  }
+const Description = styled(Typography)`
+  margin-top: 10px;
+  height: fit-content;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  ${({ showAllDescription }) => !showAllDescription && "-webkit-line-clamp: 3"};
+  -webkit-box-orient: vertical;
+  white-space: pre-wrap;
 `;
 
-const PlayerWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding-top: 10px;
-  padding-bottom: 56.25%;
-  height: 0px;
-  position: relative;
-  width: 100%;
-`;
-
-const VideoInfoWrapper = styled.div`
-  width: 100%;
-`;
-
-const MainContents = styled.div`
-  flex-grow: 1;
-`;
-
-const SideContents = styled.div`
-  width: 100%;
-  @media ${pcSize} {
-    max-width: 400px;
-  }
-`;
-
-const VideosListTemplate = ({
-  headerContents,
-  playerContents,
-  videoInfoContents,
-  relatedVideosListContents,
-  onScrollEnd,
+export const VideoInfoPresenter = ({
+  title,
+  description,
+  publishedAt,
+  viewCount,
 }) => {
-  useOnScrollEnd(onScrollEnd);
+  const [showAllDescription, setShowAllDescription] = useState(false);
   return (
     <Root>
-      <HeaderWrapper>{headerContents}</HeaderWrapper>
-      <FlexWrapper>
-        <MainContents>
-          <PlayerWrapper>{playerContents}</PlayerWrapper>
-          <VideoInfoWrapper>{videoInfoContents}</VideoInfoWrapper>
-        </MainContents>
-        <SideContents>{relatedVideosListContents}</SideContents>
-      </FlexWrapper>
+      <Title size="subtitle" bold>
+        {title}
+      </Title>
+      <Typography size="xs" color="gray">
+        {viewCount}
+        回視聴・
+        {publishedAt}
+      </Typography>
+      <Description showAllDescription={showAllDescription}>
+        {description}
+      </Description>
+      <PaperButton onClick={() => setShowAllDescription(!showAllDescription)}>
+        {showAllDescription ? "一部を表示" : "もっと見る"}
+      </PaperButton>
     </Root>
   );
 };
 
-VideosListTemplate.propTypes = {
-  headerContents: PropTypes.node,
-  playerContents: PropTypes.node.isRequired,
-  videoInfoContents: PropTypes.node,
-  relatedVideosListContents: PropTypes.node,
-  onScrollEnd: PropTypes.func,
+VideoInfoPresenter.propTypes = {
+  title: PropTypes.string.isRequired,
+  viewCount: PropTypes.string.isRequired,
+  publishedAt: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
 };
 
-VideosListTemplate.defaultProps = {
-  headerContents: null,
-  videoInfoContents: null,
-  relatedVideosListContents: null,
-  onScrollEnd: null,
+const VideoInfoContainer = ({
+  item: {
+    snippet: { publishedAt, title, description },
+    statistics: { viewCount },
+  },
+  presenter,
+}) =>
+  presenter({
+    title,
+    viewCount,
+    publishedAt: moment(publishedAt).format("YYYY/MM/DD"),
+    description,
+  });
+
+VideoInfoContainer.propTypes = {
+  item: PropTypes.shape({
+    snippet: PropTypes.shape({
+      publishedAt: PropTypes.string,
+      title: PropTypes.string,
+      description: PropTypes.string,
+    }),
+    statistics: PropTypes.shape({
+      viewCount: PropTypes.string,
+    }),
+  }),
+  presenter: PropTypes.func.isRequired,
 };
 
-export default VideosListTemplate;
+export default (props) => (
+  <VideoInfoContainer presenter={VideoInfoPresenter} {...props} />
+);
